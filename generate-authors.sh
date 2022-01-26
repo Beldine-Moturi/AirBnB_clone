@@ -3,7 +3,7 @@
 
 set -e
 
-cd "$(dirname "$(readlink -f "$BASH_SOURCE")")/.."
+cd "$(dirname "$(readlink -f "$BASH_SOURCE")")/"
 
 {
 	cat <<- 'EOH'
