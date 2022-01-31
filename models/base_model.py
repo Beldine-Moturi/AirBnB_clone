@@ -13,13 +13,25 @@ class BaseModel():
     The "BaseModel" class
     Defines all common attributes/methods for other model classes
     """
-    def __init__(self) -> None:
+    def __init__(self, *args, **kwargs):
         """Initializes a BaseModel object"""
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
 
-    def __str__(self) -> str:
+        if len(kwargs) > 0:     #kwargs is not empty
+            for key in kwargs:
+                if key not in ['__class__', 'created_at', 'updated_at']:
+                    setattr(self, key, kwargs[key])
+
+            for key in ['created_at', 'updated_at']:
+                # Converting the keys in this list to datetime objects
+                setattr(self, key, datetime.strptime(kwargs[key],
+                "%Y-%m-%dT%H:%M:%S.%f"))
+
+        else:
+            self.id = str(uuid.uuid4())
+            self.created_at = datetime.now()
+            self.updated_at = datetime.now()
+
+    def __str__(self):
         """String representation of BaseModel object"""
         return "[{}] ({}) {}".format(
             type(self).__name__, self.id, self.__dict__)
