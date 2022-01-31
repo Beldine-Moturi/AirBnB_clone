@@ -8,6 +8,20 @@ from models.base_model import BaseModel
 class TestBaseClass(unittest.TestCase):
     """Test Base Class"""
 
+    def setUp(self):
+        """Sets up sample objects for test running"""
+
+        self.model1 = BaseModel()
+        self.model2 = BaseModel()
+        self.model3 = BaseModel()
+
+    def tearDown(self):
+        """Destroys the objects setup for test running after they've been used"""
+
+        del self.model1
+        del self.model2
+        del self.model3
+
     def test_base_model_cls_doc(self):
         """Check if docstring for class is present"""
         self.assertIsNotNone(BaseModel.__doc__)
@@ -29,7 +43,10 @@ class TestBaseClass(unittest.TestCase):
     def test_base_model_attributes(self):
         """Test that these attributes exists in the BaseModel class
         """
-        pass
+
+        self.assertTrue(hasattr(self.model1, "id"))
+        self.assertTrue(hasattr(self.model1, "created_at"))
+        self.assertTrue(hasattr(self.model1, "updated_at"))
 
 
 if __name__ == '__main__':
