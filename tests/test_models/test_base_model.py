@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 """Contains test cases for the BaseModel class used
 for all other classes in this project"""
+from contextlib import redirect_stdout
 from datetime import datetime
 from models.base_model import BaseModel
+import io
 import unittest
 
 
@@ -59,6 +61,24 @@ class TestBaseModelClass(unittest.TestCase):
         t = datetime.now()
         update = self.model1.updated_at.isoformat(timespec='seconds')
         self.assertEqual(t.isoformat(timespec='seconds'), update)
+
+    @staticmethod
+    def captured_output(obj):
+        """Captures what is printed to the standard output
+        when the print method is called on obj"""
+
+        captured_output = io.StringIO()
+        with redirect_stdout(captured_output):
+            print(obj)
+        return (captured_output.getvalue())
+
+    def test_str_method(self):
+        """Tests that the __str__ method correctly returns
+        a string representation of objects of this class"""
+
+        self.assertEqual(TestBaseModelClass.captured_output(self.model1),
+                         f"[BaseModel] \
+({self.model1.id}) {self.model1.__dict__}\n")
 
 
 if __name__ == "__main__":
