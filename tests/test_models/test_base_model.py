@@ -16,7 +16,8 @@ class TestBaseClass(unittest.TestCase):
         self.model3 = BaseModel()
 
     def tearDown(self):
-        """Destroys the objects setup for test running after they've been used"""
+        """Destroys the objects setup for test running after\
+            they have been used"""
 
         del self.model1
         del self.model2
