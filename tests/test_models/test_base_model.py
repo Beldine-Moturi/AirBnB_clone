@@ -80,6 +80,33 @@ class TestBaseModelClass(unittest.TestCase):
                          f"[BaseModel] \
 ({self.model1.id}) {self.model1.__dict__}\n")
 
+    def test_to_dict_method(self):
+        """Tests that the to_dict methd returns the expected dictionary
+        representation of the instance attributes"""
+
+        my_dict = self.model1.to_dict()
+
+        self.assertTrue(type(my_dict) == dict)
+
+        keys = ["id", "created_at", "updated_at", "__class__",]
+        self.assertEqual(len(keys), len(my_dict.keys()))
+        for key in keys:
+            self.assertIn(key, my_dict.keys())
+
+        self.assertEqual(my_dict["id"], self.model1.id)
+        self.assertTrue(type(my_dict["id"]) == str)
+
+        self.assertTrue(type(my_dict["__class__"]) == str)
+        self.assertTrue(my_dict["__class__"] == type(self.model1).__name__)
+
+        self.assertTrue(type(my_dict["created_at"]) == str)
+        created_at_date = datetime.fromisoformat(my_dict["created_at"])
+        self.assertEqual(created_at_date, self.model1.created_at)
+
+        self.assertTrue(type(my_dict["updated_at"]) == str)
+        updated_at_date = datetime.fromisoformat(my_dict["updated_at"])
+        self.assertEqual(updated_at_date, self.model1.updated_at)
+
 
 if __name__ == "__main__":
     unittest.main()
