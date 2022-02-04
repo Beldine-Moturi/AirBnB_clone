@@ -21,8 +21,15 @@ class HBNBCommand(cmd.Cmd):
     prompt = '(hbnb) '
     file = None
 
-    valid_classes = {"BaseModel": BaseModel, "Amenity": Amenity, "City": City,
-           "Place": Place, "Review": Review, "State": State, "User": User}
+    valid_classes = {
+                     "BaseModel": BaseModel,
+                     "Amenity": Amenity,
+                     "City": City,
+                     "Place": Place,
+                     "Review": Review,
+                     "State": State,
+                     "User": User
+                     }
 
     def do_create(self, arg):
         """Creates a new instance of BaseModel \
