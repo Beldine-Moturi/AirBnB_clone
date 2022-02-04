@@ -3,8 +3,14 @@
 The console module which uses the cmd module
 """
 import cmd
+from models.place import Place
+from models.review import Review
+from models.user import User
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
 from models.base_model import BaseModel
-import models
+from models import storage
 import shlex    # for splitting a line along spaces
 # except those in  double quotes
 
@@ -15,7 +21,8 @@ class HBNBCommand(cmd.Cmd):
     prompt = '(hbnb) '
     file = None
 
-    valid_classes = {"BaseModel": BaseModel}
+    valid_classes = {"BaseModel": BaseModel, "Amenity": Amenity, "City": City,
+           "Place": Place, "Review": Review, "State": State, "User": User}
 
     def do_create(self, arg):
         """Creates a new instance of BaseModel \
@@ -43,8 +50,8 @@ class HBNBCommand(cmd.Cmd):
         if args[0] in HBNBCommand.valid_classes:
             if len(args) > 1:
                 key = args[0] + "." + args[1]
-                if key in models.storage.all():
-                    print(models.storage.all()[key])
+                if key in storage.all():
+                    print(storage.all()[key])
                 else:
                     print("** no instance found **")
             else:
@@ -61,9 +68,9 @@ class HBNBCommand(cmd.Cmd):
         elif args[0] in HBNBCommand.valid_classes:
             if len(args) > 1:
                 key = args[0] + "." + args[1]
-                if key in models.storage.all():
-                    models.storage.all().pop(key)
-                    models.storage.save()
+                if key in storage.all():
+                    storage.all().pop(key)
+                    storage.save()
                 else:
                     print("** no instance found **")
             else:
@@ -78,15 +85,15 @@ class HBNBCommand(cmd.Cmd):
         args = shlex.split(arg)
         obj_list = []
         if len(args) == 0:
-            for value in models.storage.all().values():
+            for value in storage.all().values():
                 obj_list.append(str(value))
             print("[", end="")
             print(", ".join(obj_list), end="")
             print("]")
         elif args[0] in HBNBCommand.valid_classes:
-            for key in models.storage.all():
+            for key in storage.all():
                 if args[0] in key:
-                    obj_list.append(str(models.storage.all()[key]))
+                    obj_list.append(str(storage.all()[key]))
             print("[", end="")
             print(", ".join(obj_list), end="")
             print("]")
@@ -105,7 +112,7 @@ class HBNBCommand(cmd.Cmd):
         elif args[0] in HBNBCommand.valid_classes:
             if len(args) > 1:
                 k = args[0] + "." + args[1]
-                if k in models.storage.all():
+                if k in storage.all():
                     if len(args) > 2:
                         if len(args) > 3:
                             if args[0] == "Place":
@@ -119,8 +126,8 @@ class HBNBCommand(cmd.Cmd):
                                         args[3] = float(args[3])
                                     except Exception:
                                         args[3] = 0.0
-                            setattr(models.storage.all()[k], args[2], args[3])
-                            models.storage.all()[k].save()
+                            setattr(storage.all()[k], args[2], args[3])
+                            storage.all()[k].save()
                         else:
                             print("** value missing **")
                     else:
