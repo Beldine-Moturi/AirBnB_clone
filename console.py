@@ -6,7 +6,7 @@ import cmd
 from models.base_model import BaseModel
 import models
 import shlex    # for splitting a line along spaces
-                # except those in  double quotes
+# except those in  double quotes
 
 
 class HBNBCommand(cmd.Cmd):
@@ -112,12 +112,12 @@ class HBNBCommand(cmd.Cmd):
                                 if args[2] in integers:
                                     try:
                                         args[3] = int(args[3])
-                                    except:
+                                    except Exception:
                                         args[3] = 0
                                 elif args[2] in floats:
                                     try:
                                         args[3] = float(args[3])
-                                    except:
+                                    except Exception:
                                         args[3] = 0.0
                             setattr(models.storage.all()[k], args[2], args[3])
                             models.storage.all()[k].save()
@@ -132,7 +132,6 @@ class HBNBCommand(cmd.Cmd):
         else:
             print("** class doesn't exist **")
 
-
     def do_EOF(self, line):
         """End of file\n"""
         return True
@@ -143,6 +142,7 @@ class HBNBCommand(cmd.Cmd):
 
     def emptyline(self):
         pass
+
 
 if __name__ == '__main__':
     HBNBCommand().cmdloop()
