@@ -19,18 +19,15 @@ class BaseModel():
         """Initializes a BaseModel object"""
 
         if len(kwargs) > 0:     # kwargs is not empty
-            for key in kwargs:
-                if key not in ['__class__', 'created_at', 'updated_at']:
-                    setattr(self, key, kwargs[key])
-                if key in ['created_at', 'updated_at']:
-                    setattr(self, key,
-                            datetime.strptime(kwargs[key],
-                                              "%Y-%m-%dT%H:%M:%S.%f"))
-
+            for key, value in kwargs.items():
+                if key != '__class__':
+                    if key in ('created_at', 'updated_at'):
+                        setattr(self, key, datetime.fromisoformat(value))
+                    else:
+                        setattr(self, key, value)
         else:
             self.id = str(uuid.uuid4())
-            self.created_at = datetime.now()
-            self.updated_at = datetime.now()
+            self.created_at = self.updated_at = datetime.now()
             storage.new(self)
 
     def __str__(self):
