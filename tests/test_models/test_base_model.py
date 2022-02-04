@@ -8,20 +8,21 @@ from models.base_model import BaseModel
 class TestBaseClass(unittest.TestCase):
     """Test Base Class"""
 
-    def setUp(self):
-        """Sets up sample objects for test running"""
+    @classmethod
+    def setUpClass(cls) -> None:
+        """ Setup class method """
+        cls.model1 = BaseModel()
+        cls.model2 = BaseModel()
 
-        self.model1 = BaseModel()
-        self.model2 = BaseModel()
-        self.model3 = BaseModel()
+        return super().setUpClass()
 
-    def tearDown(self):
-        """Destroys the objects setup for test running after\
-            they have been used"""
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Clear objects after tests"""
+        del cls.model1
+        del cls.model2
 
-        del self.model1
-        del self.model2
-        del self.model3
+        return super().tearDownClass()
 
     def test_base_model_cls_doc(self):
         """Check if docstring for class is present"""
@@ -44,10 +45,9 @@ class TestBaseClass(unittest.TestCase):
     def test_base_model_attributes(self):
         """Test that these attributes exists in the BaseModel class
         """
-
-        self.assertTrue(hasattr(self.model1, "id"))
-        self.assertTrue(hasattr(self.model1, "created_at"))
-        self.assertTrue(hasattr(self.model1, "updated_at"))
+        self.assertIsNotNone(self.id)
+        # self.assertIsNotNone(model1.created_at)
+        # self.assertIsNotNone(self.updated_at)
 
 
 if __name__ == '__main__':
