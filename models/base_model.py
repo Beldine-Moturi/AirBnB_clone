@@ -47,12 +47,9 @@ class BaseModel():
         """Returns a dictionary containing all keys/values\
              of __dict__ of the instance"""
         new_dict = self.__dict__.copy()
-        # test -> what is in new_dict
-        # print("\n ======== {}=======\n".format(new_dict))
-        new_dict["created_at"] = str(new_dict["created_at"].isoformat())
-        if "updated_at" in new_dict:
-            new_dict["updated_at"] = str(new_dict["updated_at"].isoformat())
-
-        new_dict["__class__"] = type(self).__name__
-
+        new_dict["__class__"] = self.__class__.__name__
+        for k, v in self.__dict__.items():
+            if k in ("created_at", "updated_at"):
+                v = self.__dict__[k].isoformat()
+                new_dict[k] = v
         return new_dict
