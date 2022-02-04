@@ -32,7 +32,8 @@ class FileStorage:
         """Serializes __objects to JSON file (path: __file_path"""
 
         # test values
-        # print("\n====> This is the dict\n"); print(FileStorage.__objects); print("\n======>\n")
+        # print("\n====> This is the dict\n"); print(FileStorage.__objects)
+        # print("\n======>\n")
 
         store = {}
         # for key in FileStorage.__objects.keys():
@@ -81,4 +82,3 @@ class FileStorage:
                             if val_key == '__class__':
                                 del value[val_key]
                     obj_ref.update({key: temp[key]})
-
