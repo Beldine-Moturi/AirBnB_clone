@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 """Contains tests for the Class User"""
-import json
-from models import storage
+from contextlib import redirect_stdout
+from datetime import datetime
+from models.base_model import BaseModel
+import io
 import os
 from models.city import City
 import unittest
@@ -11,47 +13,97 @@ class TestCityClassAttributes(unittest.TestCase):
     """Tests instantiation of City objects and all the attributes
     defined in the class"""
 
-    def test_city_attributes(self):
-        """tests the instantiations and dynamic allocation of attributes
-        to objects of the class City"""
+    def setUp(self):
+        """sets up the resources needed to run the tests"""
 
-        city1 = City()
-        city1.name = "Nakuru"
+        self.city1 = City()
 
-        self.assertTrue(hasattr(city1, "name"))
+    def tearDown(self):
+        """Deletes the resources created when running the tests"""
+
+        del self.city1
+
+    def test_issubclass(self):
+        """Tests if City is a subclass of BaseModel"""
+
+        self.assertIsInstance(self.city1, BaseModel)
+        self.assertTrue(hasattr(self.city1, "id"))
+        self.assertTrue(hasattr(self.city1, "created_at"))
+        self.assertTrue(hasattr(self.city1, "updated_at"))
+
+    def test_state_id_attribute(self):
+        """Tests that objects of City class have the attribute state_id"""
+
+        self.assertTrue(hasattr(self.city1, "state_id"))
+        self.assertEqual(self.city1.state_id, "")
+
+    def test_nameattribute(self):
+        """Tests that objects of the class City have the name attribute"""
+
+        self.assertTrue(hasattr(self.city1, "name"))
+        self.assertEqual(self.city1.name, "")
+        self.city1.name = "Nakuru"
+        self.assertEqual(self.city1.name, "Nakuru")
 
 
-class TestCityClassStorage(unittest.TestCase):
-    """Tests that objects of class City are properly stored in the file
-    storage"""
+class TestCityClassMethods(unittest.TestCase):
+    """Tests that methods defined in City's parent class work on instances
+    of class City"""
 
-    @classmethod
-    def tearDownClass(cls):
-        """Tears down resources created when running the tests"""
+    def setUp(self):
+        """Sets up the resources needed to run the tests"""
 
-        os.remove("filestorage.json")
+        self.city2 = City()
 
-    def test_file_storage(self):
-        """Tests the file storage with City objects"""
+    def tearDown(self):
+        """Deletes the resources created when running the tests"""
 
-        all_objs = storage.all()
-        self.assertEqual(len(all_objs), 1)
+        if (os.path.isfile("filestorage.json")):
+            os.remove("filestorage.json")
+        del self.city2
 
-        new_city1 = City()
-        all_objs = storage.all()
-        self.assertEqual(len(all_objs), 2)
-        for key, value in all_objs.items():
-            self.assertTrue(type(value) == City)
+    def test_save_method(self):
+        """Tests that this methods correctly updates the public instance
+        attribute updated_at with the current datetime when called"""
 
-        new_city1.save()
-        new_city2 = City()
-        new_city2.save()
-        self.assertTrue(os.path.isfile("filestorage.json"))
-        storage.reload()
-        all_objs = storage.all()
-        self.assertTrue(len(all_objs) == 3)
-        for key, value in all_objs.items():
-            self.assertTrue(type(value) == City)
+        old = self.city2.updated_at
+        self.city2.save()
+        new = self.city2.updated_at
+        self.assertNotEqual(old, new)
+
+    @staticmethod
+    def captured_output(obj):
+        """Captures what is printed to the standard output
+        when the print method is called on obj"""
+
+        captured_output = io.StringIO()
+        with redirect_stdout(captured_output):
+            print(obj)
+            return (captured_output.getvalue())
+
+    def test_str_method(self):
+        """Tests that the __str__ method correctly returns
+        a string representation of objects of this class"""
+
+        self.assertEqual(TestCityClassMethods.captured_output(
+            self.city2), f"[City]\
+ ({self.city2.id}) {self.city2.__dict__}\n")
+
+    def test_to_dcit_method(self):
+        """Tests the to_dict method on City objects"""
+
+        city_dict = self.city2.to_dict()
+
+        for att in ["id", "created_at", "updated_at","__class__"]:
+            self.assertIn(att, city_dict.keys())
+            self.assertTrue(type(city_dict[att]) == str)
+        self.assertEqual(city_dict["__class__"], "City")
+
+        created_date = datetime.fromisoformat(city_dict["created_at"])
+        self.assertEqual(created_date, self.city2.created_at)
+
+        updated_at_date = datetime.fromisoformat(city_dict["updated_at"])
+        self.assertEqual(updated_at_date, self.city2.updated_at)
 
 
 if __name__ == "__main__":
