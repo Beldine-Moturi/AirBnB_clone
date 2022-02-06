@@ -155,5 +155,6 @@ class TestBaseModelClassMethods(unittest.TestCase):
         updated_at_date = datetime.fromisoformat(my_dict["updated_at"])
         self.assertEqual(updated_at_date, self.model1.updated_at)
 
+
 if __name__ == '__main__':
     unittest.main()

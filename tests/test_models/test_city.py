@@ -52,3 +52,7 @@ class TestCityClassStorage(unittest.TestCase):
         self.assertTrue(len(all_objs) == 3)
         for key, value in all_objs.items():
             self.assertTrue(type(value) == City)
+
+
+if __name__ == "__main__":
+    unittest.main()

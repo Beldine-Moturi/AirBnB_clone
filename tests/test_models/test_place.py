@@ -60,3 +60,7 @@ class TestPlaceClassStorage(unittest.TestCase):
         self.assertTrue(len(all_objs) == 3)
         for key, value in all_objs.items():
             self.assertTrue(type(value) == Place)
+
+
+if __name__ == "__main__":
+    unittest.main()
