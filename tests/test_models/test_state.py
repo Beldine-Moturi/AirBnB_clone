@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 """Contains tests for the Class User"""
-import json
-from models import storage
+from contextlib import redirect_stdout
+from datetime import datetime
+from models.base_model import BaseModel
+import io
 import os
 from models.state import State
 import unittest
@@ -11,48 +13,91 @@ class TestStateClassAttributes(unittest.TestCase):
     """Tests instantiation of State objects and all the attributes
     defined in the class"""
 
-    def test_state_attributes(self):
-        """tests the instantiations and dynamic allocation of attributes
-        to objects of the class State"""
+    def setUp(self):
+        """sets up the resources needed to run the tests"""
 
-        state1 = State()
-        state1.name = "Nairobi"
+        self.state1 = State()
 
-        self.assertTrue(hasattr(state1, "name"))
-        self.assertEqual(state1.name, "Nairobi")
+    def tearDown(self):
+        """Deletes the resources created when running the tests"""
+
+        del self.state1
+
+    def test_issubclass(self):
+        """Tests if State is a subclass of BaseModel"""
+
+        self.assertIsInstance(self.state1, BaseModel)
+        self.assertTrue(hasattr(self.state1, "id"))
+        self.assertTrue(hasattr(self.state1, "created_at"))
+        self.assertTrue(hasattr(self.state1, "updated_at"))
+
+    def test_name_attribute(self):
+        """Tests that objects of the class State have the name attribute"""
+
+        self.assertTrue(hasattr(self.state1, "name"))
+        self.assertEqual(self.state1.name, "")
+        self.state1.name = "Kasarani"
+        self.assertEqual(self.state1.name, "Kasarani")
 
 
-class TestStateClassStorage(unittest.TestCase):
-    """Tests that objects of class State are properly stored in the file
-    storage"""
+class TestStateClassMethods(unittest.TestCase):
+    """Tests that methods defined in State's parent class work on instances
+    of class"""
 
-    @classmethod
-    def tearDownClass(cls):
-        """Tears down resources created when running the tests"""
+    def setUp(self):
+        """Sets up the resources needed to run the tests"""
 
-        os.remove("filestorage.json")
+        self.state2 = State()
 
-    def test_file_storage(self):
-        """Tests the file storage with User objects"""
+    def tearDown(self):
+        """Deletes the resources created when running the tests"""
 
-        all_objs = storage.all()
-        self.assertEqual(len(all_objs), 1)
+        if (os.path.isfile("filestorage.json")):
+            os.remove("filestorage.json")
+        del self.state2
 
-        new_state1 = State()
-        all_objs = storage.all()
-        self.assertEqual(len(all_objs), 2)
-        for key, value in all_objs.items():
-            self.assertTrue(type(value) == State)
+    def test_save_method(self):
+        """Tests that this methods correctly updates the public instance
+        attribute updated_at with the current datetime when called"""
 
-        new_state1.save()
-        new_state2 = State()
-        new_state2.save()
-        self.assertTrue(os.path.isfile("filestorage.json"))
-        storage.reload()
-        all_objs = storage.all()
-        self.assertTrue(len(all_objs) == 3)
-        for key, value in all_objs.items():
-            self.assertTrue(type(value) == State)
+        old = self.state2.updated_at
+        self.state2.save()
+        new = self.state2.updated_at
+        self.assertNotEqual(old, new)
+
+    @staticmethod
+    def captured_output(obj):
+        """Captures what is printed to the standard output
+        when the print method is called on obj"""
+
+        captured_output = io.StringIO()
+        with redirect_stdout(captured_output):
+            print(obj)
+            return (captured_output.getvalue())
+
+    def test_str_method(self):
+        """Tests that the __str__ method correctly returns
+        a string representation of objects of this class"""
+
+        self.assertEqual(TestStateClassMethods.captured_output(
+            self.state2), f"[State]\
+ ({self.state2.id}) {self.state2.__dict__}\n")
+
+    def test_to_dcit_method(self):
+        """Tests the to_dict method on State objects"""
+
+        state_dict = self.state2.to_dict()
+
+        for att in ["id", "created_at", "updated_at","__class__"]:
+            self.assertIn(att, state_dict.keys())
+            self.assertTrue(type(state_dict[att]) == str)
+        self.assertEqual(state_dict["__class__"], "State")
+
+        created_date = datetime.fromisoformat(state_dict["created_at"])
+        self.assertEqual(created_date, self.state2.created_at)
+
+        updated_at_date = datetime.fromisoformat(state_dict["updated_at"])
+        self.assertEqual(updated_at_date, self.state2.updated_at)
 
 
 if __name__ == "__main__":
