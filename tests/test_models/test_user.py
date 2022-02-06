@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 """Contains tests for the Class User"""
-import json
-from models import storage
+from contextlib import redirect_stdout
+from datetime import datetime
+from models.base_model import BaseModel
+import io
 import os
 from models.user import User
 import unittest
@@ -11,55 +13,113 @@ class TestUserClassAttributes(unittest.TestCase):
     """Tests instantiation of User objects and all the attributes
     defined in the class"""
 
-    def test_user_attributes(self):
-        """tests the instantiations and dynamic allocation of attributes
-        to objects of the class User"""
+    def setUp(self):
+        """sets up the resources needed to run the tests"""
 
-        user1 = User()
-        user1.first_name = "Bella"
-        user1.last_name = "Moturi"
-        user1.email = "beldinemoturi@gmail.com"
-        user1.password = "password1"
+        self.user1 = User()
 
-        for att in ['first_name', 'last_name', 'email', 'password']:
-            self.assertTrue(hasattr(user1, att))
-        self.assertEqual(user1.first_name, "Bella")
-        self.assertEqual(user1.last_name, "Moturi")
-        self.assertEqual(user1.email, "beldinemoturi@gmail.com")
-        self.assertEqual(user1.password, "password1")
+    def tearDown(self):
+        """Deletes the resources created when running the tests"""
+
+        del self.user1
+
+    def test_issubclass(self):
+        """Tests if User is a subclass of BaseModel"""
+
+        self.assertIsInstance(self.user1, BaseModel)
+        self.assertTrue(hasattr(self.user1, "id"))
+        self.assertTrue(hasattr(self.user1, "created_at"))
+        self.assertTrue(hasattr(self.user1, "updated_at"))
+
+    def test_email_attribute(self):
+        """Tests that objects of User class have the attribute email"""
+
+        self.assertTrue(hasattr(self.user1, "email"))
+        self.assertEqual(self.user1.email, "")
+        self.user1.email = "beldinemoturi@gmail.com"
+        self.assertEqual(self.user1.email, "beldinemoturi@gmail.com")
+
+    def test_password_attribute(self):
+        """Tests that objects of the class User have the password attribute"""
+
+        self.assertTrue(hasattr(self.user1, "password"))
+        self.assertEqual(self.user1.password, "")
+        self.user1.password = "password1"
+        self.assertEqual(self.user1.password, "password1")
+
+    def test_name_attributes(self):
+        """Tests that objects of the class User have the first_name and
+        last_name attributes"""
+
+        self.assertTrue(hasattr(self.user1, "first_name"))
+        self.assertTrue(hasattr(self.user1, "last_name"))
+        self.assertEqual(self.user1.first_name, "")
+        self.assertEqual(self.user1.last_name, "")
+
+        self.user1.first_name = "Bella"
+        self.user1.last_name = "Moturi"
+        self.assertEqual(self.user1.first_name, "Bella")
+        self.assertEqual(self.user1.last_name, "Moturi")
 
 
-class TestUserClassStorage(unittest.TestCase):
-    """Tests that objects of class User are properly stored in the file
-    storage"""
+class TestUserClassMethods(unittest.TestCase):
+    """Tests that methods defined in User's parent class work on instances
+    of class User"""
 
-    @classmethod
-    def tearDownClass(cls):
-        """Tears down resources created when running the tests"""
+    def setUp(self):
+        """Sets up the resources needed to run the tests"""
 
-        os.remove("filestorage.json")
+        self.user2 = User()
 
-    def test_file_storage(self):
-        """Tests the file storage with User objects"""
+    def tearDown(self):
+        """Deletes the resources created when running the tests"""
 
-        all_objs = storage.all()
-        self.assertEqual(len(all_objs), 1)
+        if (os.path.isfile("filestorage.json")):
+            os.remove("filestorage.json")
+        del self.user2
 
-        new_user1 = User()
-        all_objs = storage.all()
-        self.assertEqual(len(all_objs), 2)
-        for key, value in all_objs.items():
-            self.assertTrue(type(value) == User)
+    def test_save_method(self):
+        """Tests that this methods correctly updates the public instance
+        attribute updated_at with the current datetime when called"""
 
-        new_user1.save()
-        new_user2 = User()
-        new_user2.save()
-        self.assertTrue(os.path.isfile("filestorage.json"))
-        storage.reload()
-        all_objs = storage.all()
-        self.assertTrue(len(all_objs) == 3)
-        for key, value in all_objs.items():
-            self.assertTrue(type(value) == User)
+        old = self.user2.updated_at
+        self.user2.save()
+        new = self.user2.updated_at
+        self.assertNotEqual(old, new)
+
+    @staticmethod
+    def captured_output(obj):
+        """Captures what is printed to the standard output
+        when the print method is called on obj"""
+
+        captured_output = io.StringIO()
+        with redirect_stdout(captured_output):
+            print(obj)
+            return (captured_output.getvalue())
+
+    def test_str_method(self):
+        """Tests that the __str__ method correctly returns
+        a string representation of objects of this class"""
+
+        self.assertEqual(TestUserClassMethods.captured_output(
+            self.user2), f"[User]\
+ ({self.user2.id}) {self.user2.__dict__}\n")
+
+    def test_to_dcit_method(self):
+        """Tests the to_dict method on User objects"""
+
+        user_dict = self.user2.to_dict()
+
+        for att in ["id", "created_at", "updated_at","__class__"]:
+            self.assertIn(att, user_dict.keys())
+            self.assertTrue(type(user_dict[att]) == str)
+        self.assertEqual(user_dict["__class__"], "User")
+
+        created_date = datetime.fromisoformat(user_dict["created_at"])
+        self.assertEqual(created_date, self.user2.created_at)
+
+        updated_at_date = datetime.fromisoformat(user_dict["updated_at"])
+        self.assertEqual(updated_at_date, self.user2.updated_at)
 
 
 if __name__ == "__main__":
