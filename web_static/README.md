@@ -5,7 +5,7 @@ The goal of this project is to create a static web page for our AirBnB clone web
 - Fake contents
 
 ## Final Product
-![web_static](images/web_static.png)
+![web_static](../images/web_static.png)
 
 ### Learning objectives
 - What is HTML
