@@ -66,7 +66,7 @@ EOF  help  quit
 (hbnb)
 beldine@ubuntu:~$
 ```
-The console can create, destroy, and update objects. Type help within the console to get a list of command options and its function.
+The `console` can `create`, `destroy`, and `update` objects. Type `help` within the console to get a list of command options and its function.
 
 ### Objects Implemented
 This repository contains the following files:
@@ -94,5 +94,5 @@ This repository contains the following files:
 - Version control: Git
 
 ## Authors
-Beldine Moturi | [Linkedin](https://www.linkedin.com/in/beldine-moturi-00811615a/)
-Goodness Atunde | [Github](https://github.com/goody-1)
+- Beldine Moturi | [Linkedin](https://www.linkedin.com/in/beldine-moturi-00811615a/)
+- Goodness Atunde | [Github](https://github.com/goody-1)
